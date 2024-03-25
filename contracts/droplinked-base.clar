@@ -229,7 +229,7 @@
   )
 )
 
-(define-read-only
+(define-read-only 
   (get-price?
     (product-id uint)
   )
