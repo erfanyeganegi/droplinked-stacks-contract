@@ -2,6 +2,8 @@
 ;; in order maintain data integrity and security, only the droplinked-operator contract is authorized to modify the state of the droplinked-base-contract through public functions.
 (define-constant err-droplinked-operator-only (err u100))
 
+(define-constant err-invalid-product-id (err u200))
+
 ;; (product-id) => producer
 ;;
 ;; maps each product-id to its producer
@@ -35,7 +37,6 @@
   }
   bool
 )
-
 
 ;; (product-id) => (price)
 ;;
@@ -100,19 +101,8 @@
     (commission uint)
     (type (buff 1))
     (destination principal)
-    (beneficiaries (list 16 
-      {
-        percentage: bool,
-        address: principal,
-        value: uint,
-      }
-    ))
-    (issuer 
-      {
-        address: principal,
-        value: uint
-      }
-    )
+    (beneficiaries (list 16 { percentage: bool, address: principal, value: uint }))
+    (issuer { address: principal, value: uint })
   )
   (begin
     (asserts! (is-eq contract-caller .droplinked-operator) err-droplinked-operator-only)
@@ -145,7 +135,6 @@
 (define-public 
   (insert-request
     (product-id uint)
-    (producer principal)
     (publisher principal)
     (status (buff 1))
   )
@@ -154,7 +143,6 @@
       (request-id (+ (var-get last-request-id) u1))
     )
     (asserts! (is-eq contract-caller .droplinked-operator) err-droplinked-operator-only)
-    (map-insert producers product-id producer)
     (map-insert requests 
       request-id
       {
@@ -326,13 +314,17 @@
   (map-get? producers product-id)
 )
 
+(define-read-only 
+  (get-last-request-id)
+  (var-get last-request-id)
+)
+
 (define-private 
   (insert-beneficiary-iter
     (beneficiary 
-      {
-        percentage: bool,
+      { percentage: bool,
         address: principal,
-        value: uint,
+        value: uint
       }
     )
     (previous-result 

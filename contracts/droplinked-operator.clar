@@ -92,7 +92,6 @@
 (define-public 
   (create-request
     (product-id uint)
-    (producer principal)
     (publisher principal)
   )
   (begin
@@ -100,7 +99,7 @@
     (asserts! (is-eq (contract-call? .droplinked-base has-producer-requested-product? product-id publisher) false) err-request-duplicate)
     (let 
       (
-        (request-id (try! (contract-call? .droplinked-base insert-request product-id producer publisher STATUS_PENDING)))
+        (request-id (try! (contract-call? .droplinked-base insert-request product-id publisher STATUS_PENDING)))
       )
       (try! (contract-call? .droplinked-base insert-is-requested product-id publisher))
       (ok request-id)
