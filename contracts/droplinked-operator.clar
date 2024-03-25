@@ -59,7 +59,7 @@
       {
         percentage: bool,
         address: principal,
-        value: uint,
+        value: uint
       }
     ))
     (issuer 
