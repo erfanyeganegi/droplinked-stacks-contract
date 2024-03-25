@@ -55,19 +55,8 @@
     (type (buff 1))
     (recipient principal)
     (destination principal)
-    (beneficiaries (list 16 
-      {
-        percentage: bool,
-        address: principal,
-        value: uint
-      }
-    ))
-    (issuer 
-      {
-        address: principal,
-        value: uint
-      }
-    )
+    (beneficiaries (list 16 { percentage: bool, address: principal, value: uint }))
+    (issuer { address: principal, value: uint })
   )
   (let 
     (
