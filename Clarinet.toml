@@ -1,0 +1,14 @@
+[project]
+name = 'droplinked-stacks-contract'
+description = 'droplinked is a commerce infrastructure network operating as a decentralized inventory management and sales tracking system for digital and physical goods.'
+authors = ['yeganegierfan@gmail.com']
+telemetry = true
+cache_dir = './.cache'
+requirements = []
+
+[repl.analysis]
+passes = ["check_checker"]
+check_checker = { trusted_sender = true, trusted_caller = true, callee_filter = true }
+
+[devnet]
+use_nakamoto = true
