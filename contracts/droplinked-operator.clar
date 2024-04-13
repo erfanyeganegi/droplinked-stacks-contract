@@ -170,7 +170,6 @@
   )
 )
 
-;; #[allow(unchecked_data)]
 (define-private 
   (purchase-product-iter
     (item 
@@ -210,7 +209,6 @@
   )
 )
 
-;; #[allow(unchecked_data)]
 (define-private 
   (purchase-product-transfers
     (purchaser principal)
@@ -230,11 +228,10 @@
     (let 
       (
         (publisher-share (if (is-some optional-publisher) (apply-percentage price commission) u0))
-        (royalty-share (apply-percentage price (get value issuer)))
         (droplinked-share (apply-percentage price DROPLINKED_FEE))
+        (producer-share (- price publisher-share droplinked-share))
       )
       (try! (stx-transfer? droplinked-share purchaser (var-get droplinked-destination)))
-      (try! (stx-transfer? royalty-share purchaser (get address issuer)))
       (try! (match optional-publisher publisher 
         (if (is-eq publisher-share u0) 
           (ok true)
@@ -242,21 +239,9 @@
         )
         (ok true)
       ))
-      (let 
-        (
-          (producer-share 
-            (- price 
-              publisher-share
-              royalty-share
-              droplinked-share 
-              (try! (pay-product-benificiaries purchaser price (contract-call? .droplinked-base get-benificiary-link? product-id)))
-            )
-          )
-        )
-        (try! (stx-transfer? producer-share purchaser producer))
-        (try! (contract-call? .droplinked-token transfer product-id amount producer purchaser))
-        (ok true)
-      )
+      (try! (stx-transfer? producer-share purchaser producer))
+      (try! (contract-call? .droplinked-token transfer product-id amount producer purchaser))
+      (ok true)
     )
   )
 )
@@ -268,81 +253,6 @@
     (percentage uint)
   )
   (/ (* value percentage) u10000)
-)
-
-;; #[allow(unchecked_data)]
-(define-private 
-  (pay-product-benificiaries
-    (purchaser principal)
-    (price uint)
-    (optional-benificiary-link (optional uint))
-  )
-  (match optional-benificiary-link benificiary-link
-    (ok (get beneficiaries-share
-      (try! (fold pay-product-beneficiaries-iter 0x00000000000000000000000000000000 
-        (ok 
-          {
-            purchaser: purchaser,
-            price: price,
-            next: (some benificiary-link),
-            beneficiaries-share: u0
-          }
-        )
-      )
-    )))
-    (ok u0)
-  )
-)
-
-;; #[allow(unchecked_data)]
-(define-private 
-  (pay-product-beneficiaries-iter
-    (i (buff 1))
-    (previous-response (response 
-      {
-        purchaser: principal,
-        price: uint,
-        next: (optional uint),
-        beneficiaries-share: uint
-      }
-      uint
-    ))
-  )
-  (match previous-response result
-    (let 
-      (
-        (purchaser (get purchaser result))
-        (price (get price result))
-        (next (get next result))
-      )
-      (match next benificiary-id 
-        (let
-          (
-            (beneficiary (unwrap-panic (contract-call? .droplinked-base get-benificiary? benificiary-id)))
-            (beneficiary-share 
-              (if (get percentage beneficiary)
-                (apply-percentage price (get value beneficiary))
-                (get value beneficiary)
-              )
-            )
-            (next-beneficiary (get next beneficiary))
-          )
-          (try! (stx-transfer? beneficiary-share purchaser (get address beneficiary)))
-          (ok 
-            {
-              purchaser: purchaser,
-              price: price,
-              next: next-beneficiary,
-              beneficiaries-share: (+ (get beneficiaries-share result) beneficiary-share)
-            }
-          )
-        )
-        (ok result)
-      )
-    )
-    previous-err
-    previous-response
-  )
 )
 
 ;; retrieves current droplinked-admin
