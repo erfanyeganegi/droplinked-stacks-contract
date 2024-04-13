@@ -11,6 +11,11 @@ path = 'contracts/droplinked-base.clar'
 clarity_version = 2
 epoch = 2.4
 
+[contracts.droplinked-operator]
+path = 'contracts/droplinked-operator.clar'
+clarity_version = 2
+epoch = 2.4
+
 [contracts.droplinked-token]
 path = 'contracts/droplinked-token.clar'
 clarity_version = 2
