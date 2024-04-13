@@ -6,10 +6,10 @@
 (define-constant err-invalid-price (err u300))
 (define-constant err-invalid-commission (err u301))
 (define-constant err-invalid-type (err u302))
-(define-constant err-invalid-request-id (err u202))
+(define-constant err-invalid-request-id (err u303))
 
-(define-constant err-request-duplicate (err u300))
-(define-constant err-request-accepted (err u301))
+(define-constant err-request-duplicate (err u400))
+(define-constant err-request-accepted (err u401))
 
 (define-data-var droplinked-admin principal 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
 (define-data-var droplinked-destination principal 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
