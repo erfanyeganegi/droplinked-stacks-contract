@@ -2,6 +2,7 @@
 **/settings/Mainnet.toml
 **/settings/Testnet.toml
 .cache/**
+/deployments
 history.txt
 
 logs
