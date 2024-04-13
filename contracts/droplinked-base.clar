@@ -57,21 +57,6 @@
 ;;  - 0x02: indicates physical product
 (define-map types uint (buff 1))
 
-;; beneficiaries-links acts as an index for linked-lists containing beneficiary information for each product.
-;; beneficiaries-lists defines the structure of nodes within the linked-lists used to store beneficiary information for each product.
-;;
-;; these two maps together create a dynamic linked-list structure to manage beneficiaries for each product.
-;; beneficiaries-links map acts as an index, providing quick access to the head node of each product's linked-list in the beneficiaries-lists map.
-(define-map beneficiaries-links uint uint)
-(define-map beneficiaries-lists uint
-  {
-    percentage: bool,
-    address: principal,
-    value: uint,
-    next: (optional uint)
-  }
-)
-
 ;; (product-id) => (destination)
 ;;
 ;; stores payment destination addresses for each product.
@@ -89,9 +74,6 @@
 
 ;; stores identifier of the most recent request.
 (define-data-var last-request-id uint u0)
-
-;; stores identifier of the most beneficiary.
-(define-data-var last-beneficiary-id uint u0)
 
 (define-public
   (insert-product
@@ -112,23 +94,7 @@
     (map-insert types product-id type)
     (map-insert destinations product-id destination)
     (map-insert issuers product-id issuer)
-    (if (>= (len beneficiaries) u1)
-      (let 
-        (
-          (beneficiary-link (+ (var-get last-beneficiary-id) u1))
-        )
-        (map-insert beneficiaries-links product-id beneficiary-link)
-        (fold insert-beneficiary-iter beneficiaries 
-          { 
-            length: (len beneficiaries),
-            index: u0, 
-            benificiary-id: beneficiary-link
-          }
-        )
-        (ok true)
-      )
-      (ok true)
-    )
+    (ok true)
   )
 )
 
@@ -272,20 +238,6 @@
 )
 
 (define-read-only 
-  (get-benificiary-link?
-    (product-id uint)
-  )
-  (map-get? beneficiaries-links product-id)
-)
-
-(define-read-only 
-  (get-benificiary?
-    (benificiary-id uint)
-  )
-  (map-get? beneficiaries-lists benificiary-id)
-)
-
-(define-read-only 
   (has-producer-requested-product?
     (product-id uint)
     (publisher principal)
@@ -317,43 +269,4 @@
 (define-read-only 
   (get-last-request-id)
   (var-get last-request-id)
-)
-
-(define-private 
-  (insert-beneficiary-iter
-    (beneficiary 
-      { percentage: bool,
-        address: principal,
-        value: uint
-      }
-    )
-    (previous-result 
-      { 
-        length: uint,
-        index: uint,
-        benificiary-id: uint
-      }
-    )
-  )
-  (let 
-    (
-      (length (get length previous-result))
-      (index (get index previous-result))
-      (benificiary-id (get benificiary-id previous-result))
-    )
-    (if (is-eq index (- length u1)) 
-      (begin 
-        (map-insert beneficiaries-lists benificiary-id (merge beneficiary { next: none }))
-        (var-set last-beneficiary-id benificiary-id)
-        { length: length, index: index, benificiary-id: benificiary-id }
-      )
-      (let 
-        (
-          (next-benificiary-id (+ benificiary-id u1))
-        )
-        (map-insert beneficiaries-lists benificiary-id (merge beneficiary { next: (some next-benificiary-id) }))
-        { length: length, index: (+ index u1), benificiary-id: next-benificiary-id }
-      )
-    )
-  )
 )
