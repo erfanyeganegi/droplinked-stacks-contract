@@ -62,16 +62,6 @@
 ;; stores payment destination addresses for each product.
 (define-map destinations uint principal)
 
-;; (product-id) => (address, value)
-;;
-;; stores issuers information.
-(define-map issuers uint 
-  {
-    address: principal,
-    value: uint
-  }
-)
-
 ;; stores identifier of the most recent request.
 (define-data-var last-request-id uint u0)
 
@@ -83,8 +73,6 @@
     (commission uint)
     (type (buff 1))
     (destination principal)
-    (beneficiaries (list 16 { percentage: bool, address: principal, value: uint }))
-    (issuer { address: principal, value: uint })
   )
   (begin
     (asserts! (is-eq contract-caller .droplinked-operator) err-droplinked-operator-only)
@@ -93,7 +81,6 @@
     (map-insert commissions product-id commission)
     (map-insert types product-id type)
     (map-insert destinations product-id destination)
-    (map-insert issuers product-id issuer)
     (ok true)
   )
 )
@@ -210,24 +197,10 @@
 )
 
 (define-read-only 
-  (get-issuer?
-    (product-id uint)
-  )
-  (map-get? issuers product-id)
-)
-
-(define-read-only 
   (get-destination?
     (product-id uint)
   )
   (map-get? destinations product-id)
-)
-
-(define-read-only 
-  (get-royalty?
-    (product-id uint)
-  )
-  (map-get? issuers product-id)
 )
 
 (define-read-only 
