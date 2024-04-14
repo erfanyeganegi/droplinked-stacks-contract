@@ -4,7 +4,6 @@ description = 'droplinked is a commerce infrastructure network operating as a de
 authors = ['yeganegierfan@gmail.com']
 telemetry = true
 cache_dir = './.cache'
-requirements = []
 
 [contracts.droplinked-base]
 path = 'contracts/droplinked-base.clar'
@@ -37,4 +36,4 @@ passes = ['check_checker']
 strict = false
 trusted_sender = true
 trusted_caller = true
-callee_filter = true
+callee_filter = false
