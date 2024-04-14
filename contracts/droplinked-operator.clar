@@ -55,8 +55,6 @@
     (type (buff 1))
     (recipient principal)
     (destination principal)
-    (beneficiaries (list 16 { percentage: bool, address: principal, value: uint }))
-    (issuer { address: principal, value: uint })
   )
   (let 
     (
@@ -73,7 +71,7 @@
       )
       err-invalid-type
     )
-    (try! (contract-call? .droplinked-base insert-product product-id producer price commission type destination beneficiaries issuer))
+    (try! (contract-call? .droplinked-base insert-product product-id producer price commission type destination))
     (ok product-id)
   )
 )
@@ -223,7 +221,6 @@
       (commission (unwrap! (contract-call? .droplinked-base get-commission? product-id) (err u200)))
       (type (unwrap! (contract-call? .droplinked-base get-type? product-id) (err u200)))
       (destination (unwrap! (contract-call? .droplinked-base get-destination? product-id) (err u200)))
-      (issuer (unwrap! (contract-call? .droplinked-base get-royalty? product-id) (err u200)))
     )
     (let 
       (
@@ -246,7 +243,6 @@
   )
 )
 
-;; #[allow(unchecked_data)]
 (define-private 
   (apply-percentage
     (value uint)
